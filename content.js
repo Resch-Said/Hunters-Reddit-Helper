@@ -1,4 +1,4 @@
-console.log('[Hunter] Content Script wurde geladen');
+console.log("[Hunter] Content Script wurde geladen");
 
 function collapseElements() {
   console.log("[Hunter] Start der collapseElements Funktion");
@@ -15,46 +15,24 @@ function collapseElements() {
           ".text-12.text-secondary-weak.tracking-widest"
         );
 
-        if (titleSpan) {
-          console.log("[Hunter] Gefundener Text:", titleSpan.textContent);
-          if (titleSpan.textContent === "CUSTOM FEEDS") {
-            console.log("[Hunter] CUSTOM FEEDS Element gefunden");
-            const details = element.querySelector("details");
+        if (titleSpan && titleSpan.textContent === "CUSTOM FEEDS") {
+          console.log("[Hunter] CUSTOM FEEDS Element gefunden");
+          const summary = element.querySelector("summary");
 
-            if (details) {
-              console.log(
-                "[Hunter] Details Element Status:",
-                details.hasAttribute("open") ? "offen" : "geschlossen"
-              );
-              if (details.hasAttribute("open")) {
-                details.removeAttribute("open");
-                const animator = element.querySelector(
-                  "faceplate-auto-height-animator"
-                );
-
-                if (animator) {
-                  console.log("[Hunter] Schließe Animation");
-                  animator.style.height = "0px";
-                  const content = animator.querySelector(
-                    "[faceplate-auto-height-animator-content]"
-                  );
-                  if (content) {
-                    content.style.opacity = "0";
-                    content.style.display = "none";
-                    console.log("[Hunter] Element erfolgreich geschlossen");
-                  }
-                }
-              }
-            } else {
-              console.warn("[Hunter] Details Element nicht gefunden");
-            }
+          if (summary) {
+            console.log("[Hunter] Simuliere Klick auf Summary Element");
+            // Erstelle und dispatche ein Klick-Event
+            const clickEvent = new MouseEvent("click", {
+              view: window,
+              bubbles: true,
+              cancelable: true,
+            });
+            summary.dispatchEvent(clickEvent);
+            console.log("[Hunter] Klick-Event gesendet");
           }
-        } else {
-          console.warn("[Hunter] TitleSpan nicht gefunden");
         }
       });
       clearInterval(waitForSidebar);
-      console.log("[Hunter] Interval gestoppt");
     }
   }, 1000);
 
@@ -70,9 +48,9 @@ function collapseElements() {
 collapseElements();
 
 // Event Listener mit verzögerter Ausführung
-window.addEventListener('load', () => {
-    console.log('[Hunter] Seite vollständig geladen');
-    setTimeout(collapseElements, 2000);
+window.addEventListener("load", () => {
+  console.log("[Hunter] Seite vollständig geladen");
+  setTimeout(collapseElements, 2000);
 });
 
 // Führe die Funktion aus, wenn die Seite geladen ist
