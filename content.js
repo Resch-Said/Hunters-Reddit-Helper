@@ -33,7 +33,7 @@ function injectCSS() {
   console.log("[Hunter] CSS für RECENT injiziert");
 }
 
-// Führe CSS Injection sofort aus
+// Sofortige CSS Injection - vor allen anderen Operationen
 injectCSS();
 
 function simulateClick(element) {
@@ -61,12 +61,8 @@ function collapseElements() {
             const details = element.querySelector("details");
             if (summary && details?.hasAttribute("open")) {
               console.log(`[Hunter] Klappe ${name} ein`);
-              details.removeAttribute("open"); // Erst removeAttribute
-              setTimeout(() => {
-                // Dann Klick mit kleiner Verzögerung
-                console.log(`[Hunter] Klick auf ${name}`);
-                simulateClick(summary);
-              }, 50);
+              details.removeAttribute("open");
+              simulateClick(summary); // Direkter Klick ohne Verzögerung
               processedElements.add(name);
             }
           }
@@ -82,23 +78,15 @@ function collapseElements() {
       console.log("[Hunter] Alle Elemente verarbeitet");
       clearInterval(waitForSidebar);
     }
-  }, 1000);
-
-  setTimeout(() => {
-    clearInterval(waitForSidebar);
-    console.log("[Hunter] Timeout erreicht");
-  }, 10000);
+  }, 50); // Minimales Intervall für Element-Checks
 }
 
-// Nur einmalige Ausführung beim Laden
-window.addEventListener("load", () => {
-  console.log("[Hunter] Seite geladen - Starte Verarbeitung");
-  setTimeout(collapseElements, 2000);
-});
+// Sofortige Ausführung ohne Backup
+collapseElements();
 
-// Navigation innerhalb von Reddit
+// Navigation innerhalb von Reddit - sofortiger Restart
 window.addEventListener("popstate", () => {
   console.log("[Hunter] Navigation erkannt - Setze Status zurück");
   processedElements.clear();
-  setTimeout(collapseElements, 2000);
+  collapseElements(); // Direkter Aufruf ohne Verzögerung
 });
