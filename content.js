@@ -36,22 +36,6 @@ function injectCSS() {
 // Führe CSS Injection sofort aus
 injectCSS();
 
-function clickAllElements() {
-  console.log("[Hunter] Starte zweite Klickrunde");
-  Object.entries(XPATH_SELECTORS).forEach(([name, xpath]) => {
-    const element = getElementByXPath(xpath);
-    if (element) {
-      console.log(`[Hunter] Zweiter Klick auf ${name}`);
-      const clickEvent = new MouseEvent("click", {
-        view: window,
-        bubbles: true,
-        cancelable: true,
-      });
-      element.dispatchEvent(clickEvent);
-    }
-  });
-}
-
 function simulateClick(element) {
   const clickEvent = new MouseEvent("click", {
     view: window,
@@ -94,8 +78,6 @@ function collapseElements() {
     ) {
       console.log("[Hunter] Alle Elemente verarbeitet");
       clearInterval(waitForSidebar);
-      // Starte zweite Klickrunde nach kurzer Verzögerung
-      setTimeout(clickAllElements, 500);
     }
   }, 1000);
 
