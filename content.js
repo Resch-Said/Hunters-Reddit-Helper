@@ -55,15 +55,18 @@ function collapseElements() {
         const element = getElementByXPath(xpath);
         if (element) {
           if (name === "RECENT") {
-            // RECENT wird via CSS versteckt, braucht keinen Klick
             processedElements.add(name);
           } else {
-            // Für alle anderen Elemente: Finde den summary Button und klicke darauf
             const summary = element.querySelector("summary");
             const details = element.querySelector("details");
             if (summary && details?.hasAttribute("open")) {
-              console.log(`[Hunter] Klappe ${name} ein via Klick`);
-              simulateClick(summary);
+              console.log(`[Hunter] Klappe ${name} ein`);
+              details.removeAttribute("open"); // Erst removeAttribute
+              setTimeout(() => {
+                // Dann Klick mit kleiner Verzögerung
+                console.log(`[Hunter] Klick auf ${name}`);
+                simulateClick(summary);
+              }, 50);
               processedElements.add(name);
             }
           }
