@@ -103,3 +103,27 @@ window.addEventListener("popstate", () => {
   processedElements.clear();
   collapseElements(); // Direkter Aufruf ohne Verzögerung
 });
+
+// Read user preferences from chrome.storage
+chrome.storage.sync.get(
+  ["customFeeds", "recent", "communities", "resources"],
+  (result) => {
+    if (result.customFeeds !== undefined && !result.customFeeds) {
+      processedElements.add("CUSTOM_FEEDS");
+    }
+    if (result.recent !== undefined && !result.recent) {
+      const recentElement = getElementByXPath(XPATH_SELECTORS.RECENT);
+      if (recentElement) {
+        recentElement.style.display = "none";
+      }
+      processedElements.add("RECENT");
+    }
+    if (result.communities !== undefined && !result.communities) {
+      processedElements.add("COMMUNITIES");
+    }
+    if (result.resources !== undefined && !result.resources) {
+      processedElements.add("RESOURCES");
+    }
+    collapseElements();
+  }
+);
