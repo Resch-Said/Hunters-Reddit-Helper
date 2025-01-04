@@ -52,32 +52,34 @@ function clickAllElements() {
   });
 }
 
+function simulateClick(element) {
+  const clickEvent = new MouseEvent("click", {
+    view: window,
+    bubbles: true,
+    cancelable: true,
+  });
+  element.dispatchEvent(clickEvent);
+}
+
 function collapseElements() {
   console.log("[Hunter] Start der collapseElements Funktion");
   const waitForSidebar = setInterval(() => {
     let allProcessed = true;
 
-    // Prüfe jedes Element über XPath
     Object.entries(XPATH_SELECTORS).forEach(([name, xpath]) => {
       if (!processedElements.has(name)) {
         const element = getElementByXPath(xpath);
         if (element) {
           if (name === "RECENT") {
-            console.log("[Hunter] RECENT Element gefunden, versuche Klick");
-            const clickEvent = new MouseEvent("click", {
-              view: window,
-              bubbles: true,
-              cancelable: true,
-            });
-            element.dispatchEvent(clickEvent);
+            // RECENT wird via CSS versteckt, braucht keinen Klick
             processedElements.add(name);
-            console.log("[Hunter] Klick auf RECENT ausgeführt");
           } else {
-            // Normale Behandlung für andere Elemente
+            // Für alle anderen Elemente: Finde den summary Button und klicke darauf
+            const summary = element.querySelector("summary");
             const details = element.querySelector("details");
-            if (details?.hasAttribute("open")) {
-              console.log(`[Hunter] Klappe ${name} ein`);
-              details.removeAttribute("open");
+            if (summary && details?.hasAttribute("open")) {
+              console.log(`[Hunter] Klappe ${name} ein via Klick`);
+              simulateClick(summary);
               processedElements.add(name);
             }
           }
