@@ -111,7 +111,13 @@ chrome.storage.sync.get(
     if (result.customFeeds !== undefined && !result.customFeeds) {
       processedElements.add("CUSTOM_FEEDS");
     }
-    if (result.recent !== undefined && !result.recent) {
+    if (result.recent !== undefined && result.recent) {
+      const recentElement = getElementByXPath(XPATH_SELECTORS.RECENT);
+      if (recentElement) {
+        recentElement.style.display = "block";
+      }
+      processedElements.add("RECENT");
+    } else if (result.recent !== undefined && !result.recent) {
       const recentElement = getElementByXPath(XPATH_SELECTORS.RECENT);
       if (recentElement) {
         recentElement.style.display = "none";
