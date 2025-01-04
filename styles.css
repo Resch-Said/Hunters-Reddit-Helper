@@ -1,0 +1,14 @@
+/* Initial state */
+#left-sidebar nav > faceplate-expandable-section-helper:not(.hunter-visible),
+#left-sidebar nav > nav > faceplate-expandable-section-helper:not(.hunter-visible) {
+  visibility: hidden !important;
+}
+
+/* Show elements when ready */
+.hunter-visible {
+  visibility: visible !important;
+}
+
+reddit-recent-pages {
+  display: none !important;
+}

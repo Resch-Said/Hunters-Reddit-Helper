@@ -22,19 +22,15 @@ function getElementByXPath(xpath) {
   ).singleNodeValue;
 }
 
-function injectCSS() {
-  const style = document.createElement("style");
-  style.textContent = `
-    reddit-recent-pages {
-      display: none !important;
-    }
-  `;
-  document.head.appendChild(style);
-  console.log("[Hunter] CSS für RECENT injiziert");
+function showElement(element) {
+  if (element && element.tagName.toLowerCase() !== "reddit-recent-pages") {
+    element.classList.add("hunter-visible");
+    console.log("[Hunter] Element sichtbar gemacht:", element);
+  }
 }
 
-// Sofortige CSS Injection - vor allen anderen Operationen
-injectCSS();
+// Direkt mit collapseElements() fortfahren
+collapseElements();
 
 function simulateClick(element) {
   const clickEvent = new MouseEvent("click", {
@@ -57,12 +53,10 @@ function collapseElements() {
           if (name === "RECENT") {
             processedElements.add(name);
           } else {
-            const summary = element.querySelector("summary");
             const details = element.querySelector("details");
-            if (summary && details?.hasAttribute("open")) {
-              console.log(`[Hunter] Klappe ${name} ein`);
+            if (details) {
               details.removeAttribute("open");
-              simulateClick(summary); // Direkter Klick ohne Verzögerung
+              showElement(element);
               processedElements.add(name);
             }
           }
@@ -78,8 +72,23 @@ function collapseElements() {
       console.log("[Hunter] Alle Elemente verarbeitet");
       clearInterval(waitForSidebar);
     }
-  }, 50); // Minimales Intervall für Element-Checks
+  }, 50);
 }
+
+// MutationObserver für dynamisch nachgeladene Elemente
+const observer = new MutationObserver((mutations) => {
+  mutations.forEach((mutation) => {
+    if (mutation.addedNodes.length) {
+      collapseElements();
+    }
+  });
+});
+
+// Observer starten
+observer.observe(document.documentElement, {
+  childList: true,
+  subtree: true,
+});
 
 // Sofortige Ausführung ohne Backup
 collapseElements();
