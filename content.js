@@ -53,11 +53,15 @@ function collapseElements() {
           if (name === "RECENT") {
             processedElements.add(name);
           } else {
+            const summary = element.querySelector("summary");
             const details = element.querySelector("details");
-            if (details) {
+            if (summary && details) {
+              console.log(`[Hunter] Verarbeite ${name}`);
               details.removeAttribute("open");
+              simulateClick(summary); // Klick-Event wieder hinzugefügt
               showElement(element);
               processedElements.add(name);
+              console.log(`[Hunter] ${name} erfolgreich eingeklappt`);
             }
           }
           allProcessed = false;
