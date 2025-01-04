@@ -1,31 +1,67 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const toggleCustomFeeds = document.getElementById('toggleCustomFeeds');
-  const toggleRecent = document.getElementById('toggleRecent');
-  const toggleCommunities = document.getElementById('toggleCommunities');
-  const toggleResources = document.getElementById('toggleResources');
+document.addEventListener("DOMContentLoaded", () => {
+  const toggleCustomFeeds = document.getElementById("toggleCustomFeeds");
+  const toggleRecent = document.getElementById("toggleRecent");
+  const toggleCommunities = document.getElementById("toggleCommunities");
+  const toggleResources = document.getElementById("toggleResources");
 
-  // Load saved preferences and set toggle states
-  chrome.storage.sync.get(['customFeeds', 'recent', 'communities', 'resources'], (result) => {
-    toggleCustomFeeds.checked = result.customFeeds !== undefined ? result.customFeeds : true;
-    toggleRecent.checked = result.recent !== undefined ? result.recent : true;
-    toggleCommunities.checked = result.communities !== undefined ? result.communities : true;
-    toggleResources.checked = result.resources !== undefined ? result.resources : true;
+  // Load saved states
+  chrome.storage.sync.get(
+    {
+      customFeeds: true, // default values
+      recent: true,
+      communities: true,
+      resources: true,
+    },
+    (items) => {
+      toggleCustomFeeds.checked = items.customFeeds;
+      toggleRecent.checked = items.recent;
+      toggleCommunities.checked = items.communities;
+      toggleResources.checked = items.resources;
+    }
+  );
+
+  // Save states on change
+  toggleCustomFeeds.addEventListener("change", () => {
+    chrome.storage.sync.set({ customFeeds: toggleCustomFeeds.checked });
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: "updateState",
+        type: "customFeeds",
+        state: toggleCustomFeeds.checked,
+      });
+    });
   });
 
-  // Save preferences when toggles are changed
-  toggleCustomFeeds.addEventListener('change', () => {
-    chrome.storage.sync.set({customFeeds: toggleCustomFeeds.checked});
+  toggleRecent.addEventListener("change", () => {
+    chrome.storage.sync.set({ recent: toggleRecent.checked });
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: "updateState",
+        type: "recent",
+        state: toggleRecent.checked,
+      });
+    });
   });
 
-  toggleRecent.addEventListener('change', () => {
-    chrome.storage.sync.set({recent: toggleRecent.checked});
+  toggleCommunities.addEventListener("change", () => {
+    chrome.storage.sync.set({ communities: toggleCommunities.checked });
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: "updateState",
+        type: "communities",
+        state: toggleCommunities.checked,
+      });
+    });
   });
 
-  toggleCommunities.addEventListener('change', () => {
-    chrome.storage.sync.set({communities: toggleCommunities.checked});
-  });
-
-  toggleResources.addEventListener('change', () => {
-    chrome.storage.sync.set({resources: toggleResources.checked});
+  toggleResources.addEventListener("change", () => {
+    chrome.storage.sync.set({ resources: toggleResources.checked });
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        action: "updateState",
+        type: "resources",
+        state: toggleResources.checked,
+      });
+    });
   });
 });
