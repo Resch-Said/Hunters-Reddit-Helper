@@ -40,7 +40,7 @@
         right: 0;
         bottom: 0;
         background-color: #ccc;
-        transition: .4s;
+        transition: 0.4s;
         border-radius: 34px;
       }
       .slider:before {
@@ -51,7 +51,7 @@
         left: 3px;
         bottom: 3px;
         background-color: white;
-        transition: .4s;
+        transition: 0.4s;
         border-radius: 50%;
       }
       input:checked + .slider {
@@ -63,33 +63,35 @@
     </style>
   </head>
   <body>
-    <h2>Reddit Helper</h2>
-    <button id="formatButton">Text formatieren</button>
-    <button id="searchButton">Subreddit durchsuchen</button>
-    <h3>Sidebar Einstellungen</h3>
-    <label class="toggle">
-      <input type="checkbox" id="toggleCustomFeeds">
-      <span class="slider"></span>
-    </label>
-    <label for="toggleCustomFeeds">Custom Feeds einklappen</label>
-    <br>
-    <label class="toggle">
-      <input type="checkbox" id="toggleRecent">
-      <span class="slider"></span>
-    </label>
-    <label for="toggleRecent">Recent anzeigen</label>
-    <br>
-    <label class="toggle">
-      <input type="checkbox" id="toggleCommunities">
-      <span class="slider"></span>
-    </label>
-    <label for="toggleCommunities">Communities einklappen</label>
-    <br>
-    <label class="toggle">
-      <input type="checkbox" id="toggleResources">
-      <span class="slider"></span>
-    </label>
-    <label for="toggleResources">Resources einklappen</label>
+    <h2>Reddit Einstellungen</h2>
+    <div class="setting">
+      <label>Custom Feeds einklappen</label>
+      <label class="toggle">
+        <input type="checkbox" id="toggleCustomFeeds" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <label>Recent anzeigen</label>
+      <label class="toggle">
+        <input type="checkbox" id="toggleRecent" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <label>Communities einklappen</label>
+      <label class="toggle">
+        <input type="checkbox" id="toggleCommunities" />
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="setting">
+      <label>Resources einklappen</label>
+      <label class="toggle">
+        <input type="checkbox" id="toggleResources" />
+        <span class="slider"></span>
+      </label>
+    </div>
     <script src="popup.js"></script>
   </body>
 </html>

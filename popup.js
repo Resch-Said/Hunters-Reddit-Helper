@@ -1,15 +1,3 @@
-document.getElementById('formatButton').addEventListener('click', () => {
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    chrome.tabs.sendMessage(tabs[0].id, {action: 'formatText'});
-  });
-});
-
-document.getElementById('searchButton').addEventListener('click', () => {
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    chrome.tabs.sendMessage(tabs[0].id, {action: 'searchSubreddit'});
-  });
-});
-
 document.addEventListener('DOMContentLoaded', () => {
   const toggleCustomFeeds = document.getElementById('toggleCustomFeeds');
   const toggleRecent = document.getElementById('toggleRecent');
