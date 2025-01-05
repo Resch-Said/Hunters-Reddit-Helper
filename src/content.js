@@ -12,52 +12,14 @@ const XPATH_SELECTORS = {
     '//*[@id="left-sidebar"]/nav/nav/faceplate-expandable-section-helper',
 };
 
-// Direkt mit collapseElements() fortfahren
-collapseElements();
-
-function collapseElements() {
-  console.log("[Hunter] Start der collapseElements Funktion");
-  const waitForSidebar = setInterval(() => {
-    let allProcessed = true;
-
-    Object.entries(XPATH_SELECTORS).forEach(([name, xpath]) => {
-      if (!processedElements.has(name)) {
-        const element = getElementByXPath(xpath);
-        if (element) {
-          if (name === "RECENT") {
-            processedElements.add(name);
-          } else {
-            const summary = element.querySelector("summary");
-            const details = element.querySelector("details");
-            if (summary && details) {
-              console.log(`[Hunter] Verarbeite ${name}`);
-              details.removeAttribute("open");
-              simulateClick(summary); // Klick-Event wieder hinzugefügt
-              showElement(element);
-              processedElements.add(name);
-              console.log(`[Hunter] ${name} erfolgreich eingeklappt`);
-            }
-          }
-          allProcessed = false;
-        }
-      }
-    });
-
-    if (
-      allProcessed &&
-      processedElements.size === Object.keys(XPATH_SELECTORS).length
-    ) {
-      console.log("[Hunter] Alle Elemente verarbeitet");
-      clearInterval(waitForSidebar);
-    }
-  }, 50);
-}
+// Direkt ausführen
+collapseElements(XPATH_SELECTORS, processedElements);
 
 // MutationObserver für dynamisch nachgeladene Elemente
 const observer = new MutationObserver((mutations) => {
   mutations.forEach((mutation) => {
     if (mutation.addedNodes.length) {
-      collapseElements();
+      collapseElements(XPATH_SELECTORS, processedElements);
     }
   });
 });
@@ -68,14 +30,11 @@ observer.observe(document.documentElement, {
   subtree: true,
 });
 
-// Sofortige Ausführung ohne Backup
-collapseElements();
-
 // Navigation innerhalb von Reddit - sofortiger Restart
 window.addEventListener("popstate", () => {
   console.log("[Hunter] Navigation erkannt - Setze Status zurück");
   processedElements.clear();
-  collapseElements(); // Direkter Aufruf ohne Verzögerung
+  collapseElements(XPATH_SELECTORS, processedElements);
 });
 
 // Read user preferences from chrome.storage
@@ -104,6 +63,6 @@ chrome.storage.sync.get(
     if (result.resources !== undefined && !result.resources) {
       processedElements.add("RESOURCES");
     }
-    collapseElements();
+    collapseElements(XPATH_SELECTORS, processedElements);
   }
 );

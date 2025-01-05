@@ -88,3 +88,47 @@ function simulateClick(element) {
   });
   element.dispatchEvent(clickEvent);
 }
+
+/**
+ * Klappt Seitenleisten-Elemente basierend auf XPath-Selektoren ein
+ * @param {Object} xpathSelectors - Objekt mit Namen und XPath-Selektoren
+ * @param {Set} processedElements - Set von bereits verarbeiteten Elementen
+ * @returns {number} Interval ID für cleanup
+ */
+function collapseElements(xpathSelectors, processedElements) {
+  log("Start der collapseElements Funktion");
+  return setInterval(() => {
+    let allProcessed = true;
+
+    Object.entries(xpathSelectors).forEach(([name, xpath]) => {
+      if (!processedElements.has(name)) {
+        const element = getElementByXPath(xpath);
+        if (element) {
+          if (name === "RECENT") {
+            processedElements.add(name);
+          } else {
+            const summary = element.querySelector("summary");
+            const details = element.querySelector("details");
+            if (summary && details) {
+              log(`Verarbeite ${name}`);
+              details.removeAttribute("open");
+              simulateClick(summary);
+              showElement(element);
+              processedElements.add(name);
+              log(`${name} erfolgreich eingeklappt`);
+            }
+          }
+          allProcessed = false;
+        }
+      }
+    });
+
+    if (
+      allProcessed &&
+      processedElements.size === Object.keys(xpathSelectors).length
+    ) {
+      log("Alle Elemente verarbeitet");
+      clearInterval(this);
+    }
+  }, 50);
+}
