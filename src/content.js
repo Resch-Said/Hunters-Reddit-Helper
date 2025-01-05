@@ -1,4 +1,4 @@
-console.log("[Hunter] Content Script wurde geladen");
+log("Content Script wurde geladen");
 
 const processedElements = new Set();
 
@@ -32,7 +32,7 @@ observer.observe(document.documentElement, {
 
 // Navigation innerhalb von Reddit - sofortiger Restart
 window.addEventListener("popstate", () => {
-  console.log("[Hunter] Navigation erkannt - Setze Status zurück");
+  log("Navigation erkannt - Setze Status zurück");
   processedElements.clear();
   collapseElements(XPATH_SELECTORS, processedElements);
 });
