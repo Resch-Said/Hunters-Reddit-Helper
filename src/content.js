@@ -15,23 +15,13 @@ const XPATH_SELECTORS = {
 // Direkt ausführen
 collapseElements(XPATH_SELECTORS, processedElements);
 
-// MutationObserver für dynamisch nachgeladene Elemente
-const observer = new MutationObserver((mutations) => {
-  mutations.forEach((mutation) => {
-    if (mutation.addedNodes.length) {
-      collapseElements(XPATH_SELECTORS, processedElements);
-    }
-  });
+// MutationObserver für dynamische Inhalte
+createDynamicContentObserver(() => {
+  collapseElements(XPATH_SELECTORS, processedElements);
 });
 
-// Observer starten
-observer.observe(document.documentElement, {
-  childList: true,
-  subtree: true,
-});
-
-// Navigation innerhalb von Reddit - sofortiger Restart
-window.addEventListener("popstate", () => {
+// Navigation Observer
+createNavigationObserver(() => {
   log("Navigation erkannt - Setze Status zurück");
   processedElements.clear();
   collapseElements(XPATH_SELECTORS, processedElements);
