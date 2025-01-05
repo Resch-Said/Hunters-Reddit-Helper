@@ -12,16 +12,6 @@ const XPATH_SELECTORS = {
     '//*[@id="left-sidebar"]/nav/nav/faceplate-expandable-section-helper',
 };
 
-function getElementByXPath(xpath) {
-  return document.evaluate(
-    xpath,
-    document,
-    null,
-    XPathResult.FIRST_ORDERED_NODE_TYPE,
-    null
-  ).singleNodeValue;
-}
-
 function showElement(element) {
   if (element && element.tagName.toLowerCase() !== "reddit-recent-pages") {
     element.classList.add("hunter-visible");
