@@ -90,6 +90,34 @@ function simulateClick(element) {
 }
 
 /**
+ * Klappt ein einzelnes Element ein
+ * @param {Element} element - Das einzuklappende Element
+ * @param {string} name - Name des Elements für Logging
+ * @returns {boolean} true wenn erfolgreich eingeklappt
+ */
+function collapseElement(element, name) {
+  if (!element) return false;
+
+  if (name === "RECENT") {
+    return true;
+  }
+
+  const summary = element.querySelector("summary");
+  const details = element.querySelector("details");
+
+  if (summary && details) {
+    log(`Verarbeite ${name}`);
+    details.removeAttribute("open");
+    simulateClick(summary);
+    showElement(element);
+    log(`${name} erfolgreich eingeklappt`);
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Klappt Seitenleisten-Elemente basierend auf XPath-Selektoren ein
  * @param {Object} xpathSelectors - Objekt mit Namen und XPath-Selektoren
  * @param {Set} processedElements - Set von bereits verarbeiteten Elementen
@@ -103,21 +131,8 @@ function collapseElements(xpathSelectors, processedElements) {
     Object.entries(xpathSelectors).forEach(([name, xpath]) => {
       if (!processedElements.has(name)) {
         const element = getElementByXPath(xpath);
-        if (element) {
-          if (name === "RECENT") {
-            processedElements.add(name);
-          } else {
-            const summary = element.querySelector("summary");
-            const details = element.querySelector("details");
-            if (summary && details) {
-              log(`Verarbeite ${name}`);
-              details.removeAttribute("open");
-              simulateClick(summary);
-              showElement(element);
-              processedElements.add(name);
-              log(`${name} erfolgreich eingeklappt`);
-            }
-          }
+        if (element && collapseElement(element, name)) {
+          processedElements.add(name);
           allProcessed = false;
         }
       }
