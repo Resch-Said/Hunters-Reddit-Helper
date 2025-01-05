@@ -15,15 +15,6 @@ const XPATH_SELECTORS = {
 // Direkt mit collapseElements() fortfahren
 collapseElements();
 
-function simulateClick(element) {
-  const clickEvent = new MouseEvent("click", {
-    view: window,
-    bubbles: true,
-    cancelable: true,
-  });
-  element.dispatchEvent(clickEvent);
-}
-
 function collapseElements() {
   console.log("[Hunter] Start der collapseElements Funktion");
   const waitForSidebar = setInterval(() => {

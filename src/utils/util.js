@@ -75,3 +75,16 @@ function showElement(element) {
     log("Element sichtbar gemacht:", element);
   }
 }
+
+/**
+ * Simuliert einen Klick auf ein Element
+ * @param {Element} element - Das Element, das geklickt werden soll
+ */
+function simulateClick(element) {
+  const clickEvent = new MouseEvent("click", {
+    view: window,
+    bubbles: true,
+    cancelable: true,
+  });
+  element.dispatchEvent(clickEvent);
+}
