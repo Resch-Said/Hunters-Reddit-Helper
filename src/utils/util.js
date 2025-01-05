@@ -64,3 +64,14 @@ function getElementByXPath(xpath) {
     null
   ).singleNodeValue;
 }
+
+/**
+ * Macht ein Element sichtbar und fügt die Hunter-Klasse hinzu
+ * @param {Element} element - Das Element, das sichtbar gemacht werden soll
+ */
+function showElement(element) {
+  if (element && element.tagName.toLowerCase() !== "reddit-recent-pages") {
+    element.classList.add("hunter-visible");
+    log("Element sichtbar gemacht:", element);
+  }
+}

@@ -12,13 +12,6 @@ const XPATH_SELECTORS = {
     '//*[@id="left-sidebar"]/nav/nav/faceplate-expandable-section-helper',
 };
 
-function showElement(element) {
-  if (element && element.tagName.toLowerCase() !== "reddit-recent-pages") {
-    element.classList.add("hunter-visible");
-    console.log("[Hunter] Element sichtbar gemacht:", element);
-  }
-}
-
 // Direkt mit collapseElements() fortfahren
 collapseElements();
 
