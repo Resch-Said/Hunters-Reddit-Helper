@@ -1,7 +1,4 @@
-/* Verstecke Custom Feeds initial */
-#left-sidebar
-  > nav
-  > faceplate-expandable-section-helper:nth-child(9)
-  > details {
-  visibility: hidden;
+/* Verstecke den Inhalt der Custom Feeds, wenn sie deaktiviert sind */
+.custom-feeds-hidden:not([open]) > *:not(summary) {
+  display: none !important;
 }
