@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="popup.css" />
+    <title>Chrome Erweiterung</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Hunters Reddit Helper</h1>
+
+      <div class="toggle-row">
+        <span>Custom Feeds</span>
+        <label class="switch">
+          <input type="checkbox" id="customFeeds" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <span>Recent</span>
+        <label class="switch">
+          <input type="checkbox" id="recent" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <span>Communities</span>
+        <label class="switch">
+          <input type="checkbox" id="communities" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-row">
+        <span>Resources</span>
+        <label class="switch">
+          <input type="checkbox" id="resources" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Hunters Reddit Helper",
+  "version": "1.0",
+  "description": "Eine hilfreiche Reddit Erweiterung",
+  "permissions": ["activeTab", "storage"],
+  "action": {
+    "default_popup": "popup/popup.html"
+  },
+  "background": {
+    "service_worker": "background/background.js"
+  }
+}
