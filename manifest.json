@@ -3,11 +3,20 @@
   "name": "Hunters Reddit Helper",
   "version": "1.0",
   "description": "Eine hilfreiche Reddit Erweiterung",
-  "permissions": ["activeTab", "storage"],
+  "permissions": ["activeTab", "storage", "scripting"],
+  "host_permissions": ["*://*.reddit.com/*"],
   "action": {
     "default_popup": "popup/popup.html"
   },
   "background": {
     "service_worker": "background/background.js"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.reddit.com/*"],
+      "css": ["content.css"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ]
 }

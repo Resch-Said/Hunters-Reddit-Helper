@@ -1,0 +1,7 @@
+/* Verstecke Custom Feeds initial */
+#left-sidebar
+  > nav
+  > faceplate-expandable-section-helper:nth-child(9)
+  > details {
+  visibility: hidden;
+}
