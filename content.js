@@ -59,16 +59,19 @@ chrome.storage.sync.get("customFeeds", (data) => {
   setTimeout(() => clearInterval(checkInterval), 5000);
 });
 
-// Status beim Laden prüfen
+// Storage Listener für Recent Toggle
 chrome.storage.sync.get("recent", (data) => {
   const isEnabled = data.recent ?? true;
 
   const checkInterval = setInterval(() => {
-    const element = document.querySelector(
-      "faceplate-expandable-section-helper"
+    const recentPages = document.querySelector(
+      "#left-sidebar > nav > reddit-recent-pages"
     );
-
-    if (element) {
+    if (
+      recentPages?.shadowRoot?.querySelector(
+        "faceplate-expandable-section-helper"
+      )
+    ) {
       toggleRecent(isEnabled);
       clearInterval(checkInterval);
     }

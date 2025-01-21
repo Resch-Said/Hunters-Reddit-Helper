@@ -32,26 +32,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
-
-  chrome.storage.sync.get("recent", (data) => {
-    const isEnabled = data.recent ?? true;
-
-    const checkInterval = setInterval(() => {
-      const recentPages = document.querySelector(
-        "#left-sidebar > nav > reddit-recent-pages"
-      );
-      if (
-        recentPages?.shadowRoot?.querySelector(
-          "faceplate-expandable-section-helper"
-        )
-      ) {
-        toggleRecent(isEnabled);
-        clearInterval(checkInterval);
-      }
-    }, 100);
-
-    setTimeout(() => clearInterval(checkInterval), 5000);
-  });
 });
 
 chrome.runtime.onInstalled.addListener(() => {
