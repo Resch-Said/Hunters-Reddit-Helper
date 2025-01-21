@@ -33,22 +33,25 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  function toggleRecent(show) {
-    const recentSections = document.querySelectorAll(
-      "faceplate-expandable-section-helper"
-    );
-    if (recentSections && recentSections.length >= 2) {
-      const recentSection = recentSections[1];
-      const parentDetails = recentSection.querySelector("details");
-      if (parentDetails) {
-        if (!show) {
-          parentDetails.removeAttribute("open");
-        } else {
-          parentDetails.setAttribute("open", "");
-        }
+  chrome.storage.sync.get("recent", (data) => {
+    const isEnabled = data.recent ?? true;
+
+    const checkInterval = setInterval(() => {
+      const recentPages = document.querySelector(
+        "#left-sidebar > nav > reddit-recent-pages"
+      );
+      if (
+        recentPages?.shadowRoot?.querySelector(
+          "faceplate-expandable-section-helper"
+        )
+      ) {
+        toggleRecent(isEnabled);
+        clearInterval(checkInterval);
       }
-    }
-  }
+    }, 100);
+
+    setTimeout(() => clearInterval(checkInterval), 5000);
+  });
 });
 
 chrome.runtime.onInstalled.addListener(() => {

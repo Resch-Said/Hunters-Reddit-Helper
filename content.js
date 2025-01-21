@@ -18,26 +18,22 @@ function toggleCustomFeeds(show) {
 
 // Funktion für Recent hinzufügen
 function toggleRecent(show) {
-  const selector = "faceplate-expandable-section-helper";
-  const recentSections = document.querySelectorAll(selector);
-
-  // Wir suchen das zweite faceplate-expandable-section-helper Element
-  if (recentSections && recentSections.length >= 2) {
-    const recentSection = recentSections[1];
-    const parentDetails = recentSection.querySelector("details");
-
-    if (parentDetails) {
-      if (show) {
-        parentDetails.classList.remove("recent-hidden");
-      } else {
-        parentDetails.classList.add("recent-hidden");
-        if (parentDetails.hasAttribute("open")) {
-          const summary = parentDetails.querySelector("summary");
-          if (summary) {
-            summary.click();
-          }
+  const recentPages = document.querySelector(
+    "#left-sidebar > nav > reddit-recent-pages"
+  );
+  if (recentPages) {
+    // Zugriff auf Shadow DOM
+    const shadowRoot = recentPages.shadowRoot;
+    if (shadowRoot) {
+      const faceplateSection = shadowRoot.querySelector(
+        "faceplate-expandable-section-helper"
+      );
+      if (faceplateSection) {
+        if (!show) {
+          faceplateSection.removeAttribute("open");
+        } else {
+          faceplateSection.setAttribute("open", "");
         }
-        parentDetails.removeAttribute("open");
       }
     }
   }
@@ -68,11 +64,11 @@ chrome.storage.sync.get("recent", (data) => {
   const isEnabled = data.recent ?? true;
 
   const checkInterval = setInterval(() => {
-    const elements = document.querySelectorAll(
+    const element = document.querySelector(
       "faceplate-expandable-section-helper"
     );
 
-    if (elements && elements.length >= 2) {
+    if (element) {
       toggleRecent(isEnabled);
       clearInterval(checkInterval);
     }
