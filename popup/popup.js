@@ -14,15 +14,16 @@ document.addEventListener("DOMContentLoaded", function () {
       let value = e.target.checked;
       chrome.storage.sync.set({ [id]: value });
 
-      // Wenn customFeeds geändert wird, sende Message an Content Script
-      if (id === "customFeeds") {
+      // Wenn customFeeds oder recent geändert wird
+      if (id === "customFeeds" || id === "recent") {
         chrome.tabs.query(
           { active: true, currentWindow: true },
           function (tabs) {
             if (tabs[0].url.includes("reddit.com")) {
               chrome.scripting.executeScript({
                 target: { tabId: tabs[0].id },
-                function: toggleCustomFeeds,
+                function:
+                  id === "customFeeds" ? toggleCustomFeeds : toggleRecent,
                 args: [value],
               });
             }
@@ -32,12 +33,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  function toggleCustomFeeds(show) {
-    const customFeedsSection = document.querySelector(
-      "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(9) > details > summary > faceplate-tracker > li > div"
+  function toggleRecent(show) {
+    const recentSections = document.querySelectorAll(
+      "faceplate-expandable-section-helper"
     );
-    if (customFeedsSection) {
-      const parentDetails = customFeedsSection.closest("details");
+    if (recentSections && recentSections.length >= 2) {
+      const recentSection = recentSections[1];
+      const parentDetails = recentSection.querySelector("details");
       if (parentDetails) {
         if (!show) {
           parentDetails.removeAttribute("open");
