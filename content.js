@@ -11,6 +11,10 @@ function toggleCustomFeeds(show) {
       customFeedsSection.classList.remove("custom-feeds-hidden");
     } else {
       customFeedsSection.classList.add("custom-feeds-hidden");
+      const summary = customFeedsSection.querySelector("summary");
+      if (summary && customFeedsSection.hasAttribute("open")) {
+        summary.click();
+      }
       customFeedsSection.removeAttribute("open");
     }
   }
