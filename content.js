@@ -1,27 +1,23 @@
 // content.js
 
-// Neue Hilfsfunktion für Click mit Retry
-async function tryClickUntilStateChange(
-  element,
-  summary,
-  targetState,
-  maxAttempts = 5
-) {
-  let attempts = 0;
-  while (attempts < maxAttempts) {
-    if (element.hasAttribute("open") !== targetState) {
-      summary.click();
-      // Kurz warten und prüfen ob der Zustand sich geändert hat
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      if (element.hasAttribute("open") === targetState) {
-        return true;
-      }
-    } else {
-      return true;
-    }
-    attempts++;
+// Verbesserte Hilfsfunktion für programmatisches Öffnen/Schließen
+async function forceProgrammaticOpen(details, summary, shouldBeOpen) {
+  // Verhindere doppelte Ausführung
+  if (details.hasAttribute("open") === shouldBeOpen) {
+    return;
   }
-  return false;
+
+  // Status direkt setzen
+  if (shouldBeOpen) {
+    details.setAttribute("open", "");
+    summary.setAttribute("aria-expanded", "true");
+  } else {
+    details.removeAttribute("open");
+    summary.setAttribute("aria-expanded", "false");
+  }
+
+  // Native Click-Funktion triggern
+  summary.click();
 }
 
 // Funktion zum Steuern der Custom Feeds
@@ -31,8 +27,8 @@ async function toggleCustomFeeds(show) {
   );
   const parentDetails = customFeedsDiv?.closest("details");
   const summary = parentDetails?.querySelector("summary");
-  if (summary) {
-    await tryClickUntilStateChange(parentDetails, summary, show);
+  if (summary && parentDetails) {
+    await forceProgrammaticOpen(parentDetails, summary, show);
   }
 }
 
@@ -43,13 +39,17 @@ async function toggleRecent(show) {
   );
   const shadowRoot = recentPages?.shadowRoot;
   if (shadowRoot) {
-    const recentDiv = shadowRoot.querySelector(
-      "faceplate-expandable-section-helper > details > summary > faceplate-tracker > li > div"
-    );
-    const parentDetails = recentDiv?.closest("details");
-    const summary = parentDetails?.querySelector("summary");
-    if (summary) {
-      await tryClickUntilStateChange(parentDetails, summary, show);
+    console.log("[Hunter] Recent: Shadow Root gefunden");
+    // Direkter Zugriff auf das Details-Element im Shadow DOM
+    const details = shadowRoot.querySelector("faceplate-expandable-section-helper > details");
+    const summary = details?.querySelector("summary");
+    
+    console.log("[Hunter] Recent: Details gefunden:", !!details);
+    console.log("[Hunter] Recent: Summary gefunden:", !!summary);
+    console.log("[Hunter] Recent: Aktueller Status:", details?.hasAttribute("open"));
+    
+    if (summary && details) {
+      await forceProgrammaticOpen(details, summary, show);
     }
   }
 }
@@ -61,8 +61,8 @@ async function toggleCommunities(show) {
   );
   const parentDetails = communitiesDiv?.closest("details");
   const summary = parentDetails?.querySelector("summary");
-  if (summary) {
-    await tryClickUntilStateChange(parentDetails, summary, show);
+  if (summary && parentDetails) {
+    await forceProgrammaticOpen(parentDetails, summary, show);
   }
 }
 
@@ -72,41 +72,50 @@ async function toggleResources(show) {
     "#left-sidebar > nav > nav > faceplate-expandable-section-helper > details > summary > faceplate-tracker > li > div",
     true
   );
+  
   for (const element of elements) {
     const parentDetails = element.closest("details");
     const summary = parentDetails?.querySelector("summary");
-    if (summary) {
-      await tryClickUntilStateChange(parentDetails, summary, show);
+    if (summary && parentDetails) {
+      await forceProgrammaticOpen(parentDetails, summary, show);
     }
   }
 }
 
 // Verbesserte Hilfsfunktion zum Warten auf Elemente
-async function waitForElement(selector, isQueryAll = false) {
-  return new Promise((resolve) => {
-    // Prüfe ob Element(e) bereits existieren
+async function waitForElement(selector, isQueryAll = false, timeout = 5000) {
+  return new Promise((resolve, reject) => {
+    // Sofortige Überprüfung
     const elements = isQueryAll
       ? document.querySelectorAll(selector)
       : document.querySelector(selector);
+    
     if ((isQueryAll && elements.length > 0) || (!isQueryAll && elements)) {
       return resolve(elements);
     }
 
-    // Observer für neue Elemente
-    const observer = new MutationObserver(() => {
+    // Timeout für Observer
+    const timeoutId = setTimeout(() => {
+      observer.disconnect();
+      reject(new Error('Element timeout'));
+    }, timeout);
+
+    // Optimierter Observer
+    const observer = new MutationObserver((_, obs) => {
       const elements = isQueryAll
         ? document.querySelectorAll(selector)
         : document.querySelector(selector);
+      
       if ((isQueryAll && elements.length > 0) || (!isQueryAll && elements)) {
-        observer.disconnect();
+        clearTimeout(timeoutId);
+        obs.disconnect();
         resolve(elements);
       }
     });
 
-    observer.observe(document, {
+    observer.observe(document.documentElement, {
       childList: true,
       subtree: true,
-      attributes: true,
     });
   });
 }
@@ -118,12 +127,16 @@ async function initializeElement(
   toggleFunction,
   isQueryAll = false
 ) {
-  const { [storageKey]: isEnabled = true } = await chrome.storage.sync.get(
-    storageKey
-  );
-  const element = await waitForElement(selector, isQueryAll);
-  if (element) {
-    toggleFunction(isEnabled);
+  try {
+    const { [storageKey]: isEnabled = true } = await chrome.storage.sync.get(
+      storageKey
+    );
+    const element = await waitForElement(selector, isQueryAll);
+    if (element) {
+      await toggleFunction(isEnabled);
+    }
+  } catch (error) {
+    console.warn(`[Hunter] Konnte ${storageKey} nicht initialisieren:`, error);
   }
 }
 
@@ -159,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Vereinfachter Storage Listener
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === "sync") {
+    console.log("[Hunter] Storage changes:", changes);
     const toggleMap = {
       customFeeds: toggleCustomFeeds,
       recent: toggleRecent,
