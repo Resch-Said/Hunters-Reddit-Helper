@@ -66,13 +66,14 @@ async function toggleCommunities(show) {
 // Funktion zum Steuern der Resources
 async function toggleResources(show) {
   const elements = await waitForElement(
-    "#left-sidebar > nav > nav > faceplate-expandable-section-helper",
+    "#left-sidebar > nav > nav > faceplate-expandable-section-helper > details > summary > faceplate-tracker > li > div",
     true
   );
   for (const element of elements) {
-    const summary = element.querySelector("summary");
+    const parentDetails = element.closest('details');
+    const summary = parentDetails?.querySelector("summary");
     if (summary) {
-      await tryClickUntilStateChange(element, summary, show);
+      await tryClickUntilStateChange(parentDetails, summary, show);
     }
   }
 }
@@ -146,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initializeElement(
     "resources",
-    "#left-sidebar > nav > nav > faceplate-expandable-section-helper",
+    "#left-sidebar > nav > nav > faceplate-expandable-section-helper > details > summary > faceplate-tracker > li > div",
     toggleResources,
     true // querySelectorAll für Resources
   );
