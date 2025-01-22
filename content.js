@@ -1,69 +1,67 @@
 // content.js
 
 // Funktion zum Steuern der Custom Feeds
-function toggleCustomFeeds(show) {
-  const selector =
-    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(9)";
-  const customFeedsSection = document.querySelector(selector);
-
+async function toggleCustomFeeds(show) {
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const customFeedsSection = document.querySelector(
+    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(9)"
+  );
   if (customFeedsSection) {
-    // Entferne direkt das open-Attribut vom faceplate-expandable-section-helper
-    if (!show) {
-      customFeedsSection.removeAttribute("open");
-    } else {
-      customFeedsSection.setAttribute("open", "");
+    const summary = customFeedsSection.querySelector("summary");
+    if (summary && customFeedsSection.hasAttribute("open") !== show) {
+      summary.click();
     }
   }
 }
 
-// Funktion für Recent hinzufügen
-function toggleRecent(show) {
+// Funktion für Recent
+async function toggleRecent(show) {
+  await new Promise((resolve) => setTimeout(resolve, 500));
   const recentPages = document.querySelector(
     "#left-sidebar > nav > reddit-recent-pages"
   );
   if (recentPages) {
-    // Zugriff auf Shadow DOM
     const shadowRoot = recentPages.shadowRoot;
     if (shadowRoot) {
       const faceplateSection = shadowRoot.querySelector(
         "faceplate-expandable-section-helper"
       );
-      if (faceplateSection) {
-        if (!show) {
-          faceplateSection.removeAttribute("open");
-        } else {
-          faceplateSection.setAttribute("open", "");
-        }
+      const summary = faceplateSection?.querySelector("summary");
+      if (summary && faceplateSection.hasAttribute("open") !== show) {
+        summary.click();
       }
     }
   }
 }
 
 // Funktion zum Steuern der Communities
-function toggleCommunities(show) {
-  const selector =
-    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14)";
-  const communitiesSection = document.querySelector(selector);
-
+async function toggleCommunities(show) {
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const communitiesSection = document.querySelector(
+    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14)"
+  );
   if (communitiesSection) {
-    if (!show) {
-      communitiesSection.removeAttribute("open");
-    } else {
-      communitiesSection.setAttribute("open", "");
+    const summary = communitiesSection.querySelector("summary");
+    if (summary && communitiesSection.hasAttribute("open") !== show) {
+      summary.click();
     }
   }
 }
 
-// Funktion zum Steuern der Resources (vereinfacht)
-function toggleResources(show) {
+// Funktion zum Steuern der Resources
+async function toggleResources(show) {
+  await new Promise((resolve) => setTimeout(resolve, 500));
   const elements = document.querySelectorAll(
     "#left-sidebar > nav > nav > faceplate-expandable-section-helper"
   );
+  if (elements.length === 0) {
+    setTimeout(() => toggleResources(show), 500);
+    return;
+  }
   elements.forEach((element) => {
-    if (!show) {
-      element.removeAttribute("open");
-    } else {
-      element.setAttribute("open", "");
+    const summary = element.querySelector("summary");
+    if (summary && element.hasAttribute("open") !== show) {
+      summary.click();
     }
   });
 }
