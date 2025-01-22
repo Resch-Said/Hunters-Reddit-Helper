@@ -42,32 +42,55 @@ async function toggleCustomFeeds(show) {
   }
 }
 
-// Funktion für Recent
+// Neue Hilfsfunktion zum Warten auf Shadow Root (unendlich)
+async function waitForShadowRoot(element) {
+  console.log("[Hunter] Warte auf Shadow Root");
+  while (!element.shadowRoot) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  console.log("[Hunter] Shadow Root gefunden");
+  return element.shadowRoot;
+}
+
+// Verbesserte Recent Funktion
 async function toggleRecent(show) {
   console.log("[Hunter] Toggle Recent:", show);
   const recentPages = await waitForElement(
     "#left-sidebar > nav > reddit-recent-pages"
   );
-  const shadowRoot = recentPages?.shadowRoot;
-  if (shadowRoot) {
-    console.log("[Hunter] Recent: Shadow Root gefunden");
-    // Direkter Zugriff auf das Details-Element im Shadow DOM
-    const details = shadowRoot.querySelector(
-      "faceplate-expandable-section-helper > details"
-    );
-    const summary = details?.querySelector("summary");
 
-    console.log("[Hunter] Recent: Details gefunden:", !!details);
-    console.log("[Hunter] Recent: Summary gefunden:", !!summary);
-    console.log(
-      "[Hunter] Recent: Aktueller Status:",
-      details?.hasAttribute("open")
-    );
-
-    if (summary && details) {
-      await forceProgrammaticOpen(details, summary, show);
-    }
+  if (!recentPages) {
+    console.warn("[Hunter] Recent: Element nicht gefunden");
+    return;
   }
+
+  const shadowRoot = await waitForShadowRoot(recentPages);
+  if (!shadowRoot) {
+    console.warn("[Hunter] Recent: Shadow Root nicht verfügbar");
+    return;
+  }
+
+  console.log("[Hunter] Recent: Shadow Root erfolgreich gefunden");
+  const details = shadowRoot.querySelector(
+    "faceplate-expandable-section-helper > details"
+  );
+
+  if (!details) {
+    console.warn("[Hunter] Recent: Details Element nicht gefunden");
+    return;
+  }
+
+  const summary = details.querySelector("summary");
+  if (!summary) {
+    console.warn("[Hunter] Recent: Summary Element nicht gefunden");
+    return;
+  }
+
+  console.log(
+    "[Hunter] Recent: Alle Elemente gefunden, aktueller Status:",
+    details.hasAttribute("open")
+  );
+  await forceProgrammaticOpen(details, summary, show);
 }
 
 // Funktion zum Steuern der Communities
