@@ -41,7 +41,8 @@ function toggleRecent(show) {
 
 // Funktion zum Steuern der Communities
 function toggleCommunities(show) {
-  const selector = "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14)";
+  const selector =
+    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14)";
   const communitiesSection = document.querySelector(selector);
 
   if (communitiesSection) {
@@ -53,111 +54,109 @@ function toggleCommunities(show) {
   }
 }
 
-// Funktion zum Steuern der Resources
+// Funktion zum Steuern der Resources (vereinfacht)
 function toggleResources(show) {
-  const selector = "#left-sidebar > nav > nav > faceplate-expandable-section-helper";
-  const resourcesSection = document.querySelector(selector);
-
-  if (resourcesSection) {
+  const elements = document.querySelectorAll(
+    "#left-sidebar > nav > nav > faceplate-expandable-section-helper"
+  );
+  elements.forEach((element) => {
     if (!show) {
-      resourcesSection.removeAttribute("open");
+      element.removeAttribute("open");
     } else {
-      resourcesSection.setAttribute("open", "");
+      element.setAttribute("open", "");
     }
+  });
+}
+
+// Verbesserte Hilfsfunktion zum Warten auf Elemente
+async function waitForElement(selector, isQueryAll = false) {
+  return new Promise((resolve) => {
+    // Prüfe ob Element(e) bereits existieren
+    const elements = isQueryAll
+      ? document.querySelectorAll(selector)
+      : document.querySelector(selector);
+    if ((isQueryAll && elements.length > 0) || (!isQueryAll && elements)) {
+      return resolve(elements);
+    }
+
+    // Observer für neue Elemente
+    const observer = new MutationObserver(() => {
+      const elements = isQueryAll
+        ? document.querySelectorAll(selector)
+        : document.querySelector(selector);
+      if ((isQueryAll && elements.length > 0) || (!isQueryAll && elements)) {
+        observer.disconnect();
+        resolve(elements);
+      }
+    });
+
+    observer.observe(document, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+    });
+  });
+}
+
+// Vereinfachte Initialisierungsfunktion
+async function initializeElement(
+  storageKey,
+  selector,
+  toggleFunction,
+  isQueryAll = false
+) {
+  const { [storageKey]: isEnabled = true } = await chrome.storage.sync.get(
+    storageKey
+  );
+  const element = await waitForElement(selector, isQueryAll);
+  if (element) {
+    toggleFunction(isEnabled);
   }
 }
 
-// Status beim Laden prüfen
-chrome.storage.sync.get("customFeeds", (data) => {
-  const isEnabled = data.customFeeds ?? true;
+// Initialisierung beim Laden der Seite
+document.addEventListener("DOMContentLoaded", () => {
+  // Initialisiere Elemente
+  initializeElement(
+    "customFeeds",
+    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(9)",
+    toggleCustomFeeds
+  );
 
-  // Interval für schnelles Finden des Elements
-  const checkInterval = setInterval(() => {
-    const element = document.querySelector(
-      "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(9)"
-    );
+  initializeElement(
+    "recent",
+    "#left-sidebar > nav > reddit-recent-pages",
+    toggleRecent
+  );
 
-    if (element) {
-      toggleCustomFeeds(isEnabled);
-      clearInterval(checkInterval);
-    }
-  }, 100);
+  initializeElement(
+    "communities",
+    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14)",
+    toggleCommunities
+  );
 
-  // Nach 5 Sekunden aufhören zu suchen
-  setTimeout(() => clearInterval(checkInterval), 5000);
+  initializeElement(
+    "resources",
+    "#left-sidebar > nav > nav > faceplate-expandable-section-helper",
+    toggleResources,
+    true // querySelectorAll für Resources
+  );
 });
 
-// Storage Listener für Recent Toggle
-chrome.storage.sync.get("recent", (data) => {
-  const isEnabled = data.recent ?? true;
-
-  const checkInterval = setInterval(() => {
-    const recentPages = document.querySelector(
-      "#left-sidebar > nav > reddit-recent-pages"
-    );
-    if (
-      recentPages?.shadowRoot?.querySelector(
-        "faceplate-expandable-section-helper"
-      )
-    ) {
-      toggleRecent(isEnabled);
-      clearInterval(checkInterval);
-    }
-  }, 100);
-
-  setTimeout(() => clearInterval(checkInterval), 5000);
-});
-
-// Status beim Laden prüfen für Communities
-chrome.storage.sync.get("communities", (data) => {
-  const isEnabled = data.communities ?? true;
-
-  const checkInterval = setInterval(() => {
-    const element = document.querySelector(
-      "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14)"
-    );
-
-    if (element) {
-      toggleCommunities(isEnabled);
-      clearInterval(checkInterval);
-    }
-  }, 100);
-
-  setTimeout(() => clearInterval(checkInterval), 5000);
-});
-
-// Status beim Laden prüfen für Resources
-chrome.storage.sync.get("resources", (data) => {
-  const isEnabled = data.resources ?? true;
-
-  const checkInterval = setInterval(() => {
-    const element = document.querySelector(
-      "#left-sidebar > nav > nav > faceplate-expandable-section-helper"
-    );
-
-    if (element) {
-      toggleResources(isEnabled);
-      clearInterval(checkInterval);
-    }
-  }, 100);
-
-  setTimeout(() => clearInterval(checkInterval), 5000);
-});
-
-// Auf Änderungen reagieren
+// Vereinfachter Storage Listener
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === "sync") {
-    if (changes.customFeeds) {
-      toggleCustomFeeds(changes.customFeeds.newValue);
-    }
-    if (changes.recent) {
-      toggleRecent(changes.recent.newValue);
-    }
-    if (changes.communities) {
-      toggleCommunities(changes.communities.newValue);
-    }
-    if (changes.resources) {
-      toggleResources(changes.resources.newValue);
-    }
+    const toggleMap = {
+      customFeeds: toggleCustomFeeds,
+      recent: toggleRecent,
+      communities: toggleCommunities,
+      resources: toggleResources,
+    };
+
+    Object.entries(changes).forEach(([key, { newValue }]) => {
+      if (toggleMap[key]) {
+        toggleMap[key](newValue);
+      }
+    });
   }
 });
