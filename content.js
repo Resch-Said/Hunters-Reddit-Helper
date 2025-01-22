@@ -2,11 +2,18 @@
 
 // Verbesserte Hilfsfunktion für programmatisches Öffnen/Schließen
 async function forceProgrammaticOpen(details, summary, shouldBeOpen) {
+  console.log("[Hunter] Force Open:", {
+    shouldBeOpen,
+    currentState: details.hasAttribute("open"),
+  });
+
   // Verhindere doppelte Ausführung
   if (details.hasAttribute("open") === shouldBeOpen) {
+    console.log("[Hunter] Status bereits korrekt, keine Aktion nötig");
     return;
   }
 
+  console.log("[Hunter] Ändere Status...");
   // Status direkt setzen
   if (shouldBeOpen) {
     details.setAttribute("open", "");
@@ -16,15 +23,18 @@ async function forceProgrammaticOpen(details, summary, shouldBeOpen) {
     summary.setAttribute("aria-expanded", "false");
   }
 
-  // Native Click-Funktion triggern
+  console.log("[Hunter] Führe nativen Click aus");
   summary.click();
+  console.log("[Hunter] Neuer Status:", details.hasAttribute("open"));
 }
 
 // Funktion zum Steuern der Custom Feeds
 async function toggleCustomFeeds(show) {
+  console.log("[Hunter] Toggle Custom Feeds:", show);
   const customFeedsDiv = await waitForElement(
     "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(9) > details > summary > faceplate-tracker > li > div"
   );
+  console.log("[Hunter] Custom Feeds Element gefunden");
   const parentDetails = customFeedsDiv?.closest("details");
   const summary = parentDetails?.querySelector("summary");
   if (summary && parentDetails) {
@@ -34,6 +44,7 @@ async function toggleCustomFeeds(show) {
 
 // Funktion für Recent
 async function toggleRecent(show) {
+  console.log("[Hunter] Toggle Recent:", show);
   const recentPages = await waitForElement(
     "#left-sidebar > nav > reddit-recent-pages"
   );
@@ -41,13 +52,18 @@ async function toggleRecent(show) {
   if (shadowRoot) {
     console.log("[Hunter] Recent: Shadow Root gefunden");
     // Direkter Zugriff auf das Details-Element im Shadow DOM
-    const details = shadowRoot.querySelector("faceplate-expandable-section-helper > details");
+    const details = shadowRoot.querySelector(
+      "faceplate-expandable-section-helper > details"
+    );
     const summary = details?.querySelector("summary");
-    
+
     console.log("[Hunter] Recent: Details gefunden:", !!details);
     console.log("[Hunter] Recent: Summary gefunden:", !!summary);
-    console.log("[Hunter] Recent: Aktueller Status:", details?.hasAttribute("open"));
-    
+    console.log(
+      "[Hunter] Recent: Aktueller Status:",
+      details?.hasAttribute("open")
+    );
+
     if (summary && details) {
       await forceProgrammaticOpen(details, summary, show);
     }
@@ -56,9 +72,11 @@ async function toggleRecent(show) {
 
 // Funktion zum Steuern der Communities
 async function toggleCommunities(show) {
+  console.log("[Hunter] Toggle Communities:", show);
   const communitiesDiv = await waitForElement(
     "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14) > details > summary > faceplate-tracker > li > div"
   );
+  console.log("[Hunter] Communities Element gefunden");
   const parentDetails = communitiesDiv?.closest("details");
   const summary = parentDetails?.querySelector("summary");
   if (summary && parentDetails) {
@@ -68,11 +86,13 @@ async function toggleCommunities(show) {
 
 // Funktion zum Steuern der Resources
 async function toggleResources(show) {
+  console.log("[Hunter] Toggle Resources:", show);
   const elements = await waitForElement(
     "#left-sidebar > nav > nav > faceplate-expandable-section-helper > details > summary > faceplate-tracker > li > div",
     true
   );
-  
+  console.log("[Hunter] Resources Elemente gefunden:", elements.length);
+
   for (const element of elements) {
     const parentDetails = element.closest("details");
     const summary = parentDetails?.querySelector("summary");
@@ -82,32 +102,27 @@ async function toggleResources(show) {
   }
 }
 
-// Verbesserte Hilfsfunktion zum Warten auf Elemente
-async function waitForElement(selector, isQueryAll = false, timeout = 5000) {
-  return new Promise((resolve, reject) => {
-    // Sofortige Überprüfung
+// Vereinfachte Hilfsfunktion zum Warten auf Elemente
+async function waitForElement(selector, isQueryAll = false) {
+  console.log("[Hunter] Warte auf Element:", { selector, isQueryAll });
+  return new Promise((resolve) => {
     const elements = isQueryAll
       ? document.querySelectorAll(selector)
       : document.querySelector(selector);
-    
+
     if ((isQueryAll && elements.length > 0) || (!isQueryAll && elements)) {
+      console.log("[Hunter] Element sofort gefunden");
       return resolve(elements);
     }
 
-    // Timeout für Observer
-    const timeoutId = setTimeout(() => {
-      observer.disconnect();
-      reject(new Error('Element timeout'));
-    }, timeout);
-
-    // Optimierter Observer
+    console.log("[Hunter] Element nicht sofort gefunden, starte Observer");
     const observer = new MutationObserver((_, obs) => {
       const elements = isQueryAll
         ? document.querySelectorAll(selector)
         : document.querySelector(selector);
-      
+
       if ((isQueryAll && elements.length > 0) || (!isQueryAll && elements)) {
-        clearTimeout(timeoutId);
+        console.log("[Hunter] Element durch Observer gefunden");
         obs.disconnect();
         resolve(elements);
       }
@@ -127,16 +142,16 @@ async function initializeElement(
   toggleFunction,
   isQueryAll = false
 ) {
-  try {
-    const { [storageKey]: isEnabled = true } = await chrome.storage.sync.get(
-      storageKey
-    );
-    const element = await waitForElement(selector, isQueryAll);
-    if (element) {
-      await toggleFunction(isEnabled);
-    }
-  } catch (error) {
-    console.warn(`[Hunter] Konnte ${storageKey} nicht initialisieren:`, error);
+  console.log("[Hunter] Initialisiere Element:", storageKey);
+  const { [storageKey]: isEnabled = true } = await chrome.storage.sync.get(
+    storageKey
+  );
+  console.log("[Hunter] Storage Status für", storageKey, ":", isEnabled);
+
+  const element = await waitForElement(selector, isQueryAll);
+  if (element) {
+    console.log("[Hunter] Führe Toggle aus für", storageKey);
+    await toggleFunction(isEnabled);
   }
 }
 
@@ -172,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Vereinfachter Storage Listener
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === "sync") {
-    console.log("[Hunter] Storage changes:", changes);
+    console.log("[Hunter] Storage Änderungen erkannt:", changes);
     const toggleMap = {
       customFeeds: toggleCustomFeeds,
       recent: toggleRecent,
@@ -180,7 +195,8 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
       resources: toggleResources,
     };
 
-    Object.entries(changes).forEach(([key, { newValue }]) => {
+    Object.entries(changes).forEach(([key, { newValue, oldValue }]) => {
+      console.log("[Hunter] Verarbeite Änderung:", { key, oldValue, newValue });
       if (toggleMap[key]) {
         toggleMap[key](newValue);
       }
