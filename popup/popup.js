@@ -27,14 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (tabs[0].url.includes("reddit.com")) {
               chrome.scripting.executeScript({
                 target: { tabId: tabs[0].id },
-                function:
-                  id === "customFeeds"
-                    ? toggleCustomFeeds
-                    : id === "recent"
-                    ? toggleRecent
-                    : id === "communities"
-                    ? toggleCommunities
-                    : toggleResources,
+                function: getToggleFunction(id),
                 args: [value],
               });
             }
@@ -44,6 +37,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+function getToggleFunction(id) {
+  if (id === "customFeeds") return toggleCustomFeeds;
+  if (id === "recent") return toggleRecent;
+  if (id === "communities") return toggleCommunities;
+  return toggleResources;
+}
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Erweiterung installiert!");
