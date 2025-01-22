@@ -1,69 +1,80 @@
 // content.js
 
+// Neue Hilfsfunktion für Click mit Retry
+async function tryClickUntilStateChange(
+  element,
+  summary,
+  targetState,
+  maxAttempts = 5
+) {
+  let attempts = 0;
+  while (attempts < maxAttempts) {
+    if (element.hasAttribute("open") !== targetState) {
+      summary.click();
+      // Kurz warten und prüfen ob der Zustand sich geändert hat
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      if (element.hasAttribute("open") === targetState) {
+        return true;
+      }
+    } else {
+      return true;
+    }
+    attempts++;
+  }
+  return false;
+}
+
 // Funktion zum Steuern der Custom Feeds
 async function toggleCustomFeeds(show) {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const customFeedsSection = document.querySelector(
+  const customFeedsSection = await waitForElement(
     "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(9)"
   );
-  if (customFeedsSection) {
-    const summary = customFeedsSection.querySelector("summary");
-    if (summary && customFeedsSection.hasAttribute("open") !== show) {
-      summary.click();
-    }
+  const summary = customFeedsSection?.querySelector("summary");
+  if (summary) {
+    await tryClickUntilStateChange(customFeedsSection, summary, show);
   }
 }
 
 // Funktion für Recent
 async function toggleRecent(show) {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const recentPages = document.querySelector(
+  const recentPages = await waitForElement(
     "#left-sidebar > nav > reddit-recent-pages"
   );
-  if (recentPages) {
-    const shadowRoot = recentPages.shadowRoot;
-    if (shadowRoot) {
-      const faceplateSection = shadowRoot.querySelector(
-        "faceplate-expandable-section-helper"
-      );
-      const summary = faceplateSection?.querySelector("summary");
-      if (summary && faceplateSection.hasAttribute("open") !== show) {
-        summary.click();
-      }
+  const shadowRoot = recentPages?.shadowRoot;
+  if (shadowRoot) {
+    const faceplateSection = shadowRoot.querySelector(
+      "faceplate-expandable-section-helper"
+    );
+    const summary = faceplateSection?.querySelector("summary");
+    if (summary) {
+      await tryClickUntilStateChange(faceplateSection, summary, show);
     }
   }
 }
 
 // Funktion zum Steuern der Communities
 async function toggleCommunities(show) {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const communitiesSection = document.querySelector(
+  const communitiesSection = await waitForElement(
     "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14)"
   );
-  if (communitiesSection) {
-    const summary = communitiesSection.querySelector("summary");
-    if (summary && communitiesSection.hasAttribute("open") !== show) {
-      summary.click();
-    }
+  const summary = communitiesSection?.querySelector("summary");
+  if (summary) {
+    await tryClickUntilStateChange(communitiesSection, summary, show);
   }
 }
 
 // Funktion zum Steuern der Resources
 async function toggleResources(show) {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  const elements = document.querySelectorAll(
-    "#left-sidebar > nav > nav > faceplate-expandable-section-helper"
+  const elements = await waitForElement(
+    "#left-sidebar > nav > nav > faceplate-expandable-section-helper",
+    true
   );
-  if (elements.length === 0) {
-    setTimeout(() => toggleResources(show), 500);
-    return;
-  }
-  elements.forEach((element) => {
+  for (const element of elements) {
     const summary = element.querySelector("summary");
-    if (summary && element.hasAttribute("open") !== show) {
-      summary.click();
+    if (summary) {
+      await tryClickUntilStateChange(element, summary, show);
     }
-  });
+  }
 }
 
 // Verbesserte Hilfsfunktion zum Warten auf Elemente
