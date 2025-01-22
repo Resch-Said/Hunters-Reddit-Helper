@@ -26,12 +26,13 @@ async function tryClickUntilStateChange(
 
 // Funktion zum Steuern der Custom Feeds
 async function toggleCustomFeeds(show) {
-  const customFeedsSection = await waitForElement(
-    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(9)"
+  const customFeedsDiv = await waitForElement(
+    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(9) > details > summary > faceplate-tracker > li > div"
   );
-  const summary = customFeedsSection?.querySelector("summary");
+  const parentDetails = customFeedsDiv?.closest("details");
+  const summary = parentDetails?.querySelector("summary");
   if (summary) {
-    await tryClickUntilStateChange(customFeedsSection, summary, show);
+    await tryClickUntilStateChange(parentDetails, summary, show);
   }
 }
 
@@ -42,24 +43,26 @@ async function toggleRecent(show) {
   );
   const shadowRoot = recentPages?.shadowRoot;
   if (shadowRoot) {
-    const faceplateSection = shadowRoot.querySelector(
-      "faceplate-expandable-section-helper"
+    const recentDiv = shadowRoot.querySelector(
+      "faceplate-expandable-section-helper > details > summary > faceplate-tracker > li > div"
     );
-    const summary = faceplateSection?.querySelector("summary");
+    const parentDetails = recentDiv?.closest("details");
+    const summary = parentDetails?.querySelector("summary");
     if (summary) {
-      await tryClickUntilStateChange(faceplateSection, summary, show);
+      await tryClickUntilStateChange(parentDetails, summary, show);
     }
   }
 }
 
 // Funktion zum Steuern der Communities
 async function toggleCommunities(show) {
-  const communitiesSection = await waitForElement(
-    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14)"
+  const communitiesDiv = await waitForElement(
+    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14) > details > summary > faceplate-tracker > li > div"
   );
-  const summary = communitiesSection?.querySelector("summary");
+  const parentDetails = communitiesDiv?.closest("details");
+  const summary = parentDetails?.querySelector("summary");
   if (summary) {
-    await tryClickUntilStateChange(communitiesSection, summary, show);
+    await tryClickUntilStateChange(parentDetails, summary, show);
   }
 }
 
@@ -70,7 +73,7 @@ async function toggleResources(show) {
     true
   );
   for (const element of elements) {
-    const parentDetails = element.closest('details');
+    const parentDetails = element.closest("details");
     const summary = parentDetails?.querySelector("summary");
     if (summary) {
       await tryClickUntilStateChange(parentDetails, summary, show);
@@ -129,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialisiere Elemente
   initializeElement(
     "customFeeds",
-    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(9)",
+    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(9) > details > summary > faceplate-tracker > li > div",
     toggleCustomFeeds
   );
 
@@ -141,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initializeElement(
     "communities",
-    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14)",
+    "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14) > details > summary > faceplate-tracker > li > div",
     toggleCommunities
   );
 
