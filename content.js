@@ -39,6 +39,20 @@ function toggleRecent(show) {
   }
 }
 
+// Funktion zum Steuern der Communities
+function toggleCommunities(show) {
+  const selector = "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14)";
+  const communitiesSection = document.querySelector(selector);
+
+  if (communitiesSection) {
+    if (!show) {
+      communitiesSection.removeAttribute("open");
+    } else {
+      communitiesSection.setAttribute("open", "");
+    }
+  }
+}
+
 // Status beim Laden prüfen
 chrome.storage.sync.get("customFeeds", (data) => {
   const isEnabled = data.customFeeds ?? true;
@@ -80,6 +94,24 @@ chrome.storage.sync.get("recent", (data) => {
   setTimeout(() => clearInterval(checkInterval), 5000);
 });
 
+// Status beim Laden prüfen für Communities
+chrome.storage.sync.get("communities", (data) => {
+  const isEnabled = data.communities ?? true;
+
+  const checkInterval = setInterval(() => {
+    const element = document.querySelector(
+      "#left-sidebar > nav > faceplate-expandable-section-helper:nth-child(14)"
+    );
+
+    if (element) {
+      toggleCommunities(isEnabled);
+      clearInterval(checkInterval);
+    }
+  }, 100);
+
+  setTimeout(() => clearInterval(checkInterval), 5000);
+});
+
 // Auf Änderungen reagieren
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === "sync") {
@@ -88,6 +120,9 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     }
     if (changes.recent) {
       toggleRecent(changes.recent.newValue);
+    }
+    if (changes.communities) {
+      toggleCommunities(changes.communities.newValue);
     }
   }
 });

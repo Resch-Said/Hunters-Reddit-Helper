@@ -14,8 +14,8 @@ document.addEventListener("DOMContentLoaded", function () {
       let value = e.target.checked;
       chrome.storage.sync.set({ [id]: value });
 
-      // Wenn customFeeds oder recent geändert wird
-      if (id === "customFeeds" || id === "recent") {
+      // Wenn customFeeds, recent oder communities geändert wird
+      if (id === "customFeeds" || id === "recent" || id === "communities") {
         chrome.tabs.query(
           { active: true, currentWindow: true },
           function (tabs) {
@@ -23,7 +23,9 @@ document.addEventListener("DOMContentLoaded", function () {
               chrome.scripting.executeScript({
                 target: { tabId: tabs[0].id },
                 function:
-                  id === "customFeeds" ? toggleCustomFeeds : toggleRecent,
+                  id === "customFeeds" ? toggleCustomFeeds : 
+                  id === "recent" ? toggleRecent : 
+                  toggleCommunities,
                 args: [value],
               });
             }
