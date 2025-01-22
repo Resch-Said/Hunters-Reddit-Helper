@@ -53,6 +53,20 @@ function toggleCommunities(show) {
   }
 }
 
+// Funktion zum Steuern der Resources
+function toggleResources(show) {
+  const selector = "#left-sidebar > nav > nav > faceplate-expandable-section-helper";
+  const resourcesSection = document.querySelector(selector);
+
+  if (resourcesSection) {
+    if (!show) {
+      resourcesSection.removeAttribute("open");
+    } else {
+      resourcesSection.setAttribute("open", "");
+    }
+  }
+}
+
 // Status beim Laden prüfen
 chrome.storage.sync.get("customFeeds", (data) => {
   const isEnabled = data.customFeeds ?? true;
@@ -112,6 +126,24 @@ chrome.storage.sync.get("communities", (data) => {
   setTimeout(() => clearInterval(checkInterval), 5000);
 });
 
+// Status beim Laden prüfen für Resources
+chrome.storage.sync.get("resources", (data) => {
+  const isEnabled = data.resources ?? true;
+
+  const checkInterval = setInterval(() => {
+    const element = document.querySelector(
+      "#left-sidebar > nav > nav > faceplate-expandable-section-helper"
+    );
+
+    if (element) {
+      toggleResources(isEnabled);
+      clearInterval(checkInterval);
+    }
+  }, 100);
+
+  setTimeout(() => clearInterval(checkInterval), 5000);
+});
+
 // Auf Änderungen reagieren
 chrome.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === "sync") {
@@ -123,6 +155,9 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
     }
     if (changes.communities) {
       toggleCommunities(changes.communities.newValue);
+    }
+    if (changes.resources) {
+      toggleResources(changes.resources.newValue);
     }
   }
 });
